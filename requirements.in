@@ -1,0 +1,4 @@
+bottle
+celery
+pusher
+redis

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<head>
+  <title>Pusher Test</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">
+            <img alt="Brand" src="...">
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container" ng-app="app" ng-controller="pusherController">
+        <aside class="col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <form ng-submit="send_notification();">
+                  <div class="form-group">
+                    <label>Selecione um usuário</label>
+                    <select class="form-control" name="user" ng-model="current_user">
+                        <option value="1">Usuário 1</option>
+                        <option value="2">Usuário 2</option>
+                        <option value="3">Usuário 3</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Tipo</label>
+                    <select class="form-control" name="notif_type" ng-model="notif_type">
+                        <option value="info">INFO</option>
+                        <option value="warning">WARNING</option>
+                        <option value="error">ERROR</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Mensagem</label>
+                    <input type="text" class="form-control" name="notif_message" ng-model="notif_message" placeholder="Digite qualquer coisa">
+                  </div>
+
+                  <button type="submit" class="btn btn-default">Submit</button>
+                </form>
+              </div>
+            </div>
+        </aside>
+
+        <section class="col-xs-12">
+            <h1>Canais</h1>
+
+            <div ng-repeat="(name, channel) in channels">
+                <h2>{{ name }}</h2>
+                <ul class="list-group channel">
+                    <li ng-class="parse_type('list-group-item', item.type)" ng-repeat="item in channel.messages">{{ item.message }}</li>
+                </ul>
+                <hr>
+            </div>
+        </section>
+    </div>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js" crossorigin="anonymous"></script>
+    <script src="https://js.pusher.com/3.2/pusher.min.js"></script>
+
+    <script>
+        (function () {
+            function pusherController($scope, $http) {
+                var channel_names = ['user1', 'user2', 'user3'];
+                var channels = {};
+
+                Pusher.logToConsole = true;
+
+                var pusher = new Pusher('ccd5451ac258b803fe90', {
+                    authEndpoint: '/auth/',
+                    encrypted: true
+                });
+
+                for(ix in channel_names) {
+                    var name = channel_names[ix];
+                    channels[name] = {
+                        instance: pusher.subscribe('private-' + name),
+                        messages: [],
+                    };
+
+                    channels[name].instance.bind('notification', function(data) {
+                        channels[this].messages.push(data);
+                    }, name);
+                }
+
+                function send_notification() {
+                    if(!$scope.current_user || !$scope.notif_type || !$scope.notif_message) {
+                        alert('Preencha todos os campos!');
+                        return;
+                    }
+
+                    var data = {
+                        'channel': 'private-user' + $scope.current_user,
+                        'type': $scope.notif_type,
+                        'message': $scope.notif_message,
+                    };
+
+                    $http.post('/notification/', data);
+                }
+
+                function parse_type(initial, type) {
+                    var cls = [];
+                    if(initial) {
+                        cls.push(initial);
+                    }
+                    switch(type) {
+                        case 'error':
+                            cls.push('alert-danger');
+                        default:
+                            cls.push('alert-' + type);
+                    }
+                    return cls.join(' ');
+                }
+
+                $scope.parse_type = parse_type;
+                $scope.send_notification = send_notification;
+                $scope.channels = channels;
+            }
+
+            angular.module('app', []).controller('pusherController', ['$scope', '$http', pusherController]);
+        })();
+    </script>
+</body>
+
+</html>
