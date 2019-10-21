@@ -22,8 +22,4 @@ pytz==2016.6.1            # via celery
 redis==2.10.5
 requests==2.11.1          # via pusher
 six==1.10.0               # via cryptography, pusher, pyopenssl
-urllib3==1.17             # via pusher
-
-# The following packages are commented out because they are
-# considered to be unsafe in a requirements file:
-# setuptools                # via cryptography
+urllib3==1.24.2           # via pusher
