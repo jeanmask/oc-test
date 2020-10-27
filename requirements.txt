@@ -7,23 +7,18 @@
 amqp==1.4.9               # via kombu
 anyjson==0.3.3            # via kombu
 billiard==3.3.0.23        # via celery
-bottle==0.12.9
-celery==3.1.23
+bottle==0.12.9            # via -r requirements.in
+celery==3.1.23            # via -r requirements.in
 cffi==1.8.2               # via cryptography
-cryptography==1.5         # via pyopenssl
-idna==2.1                 # via cryptography
+cryptography==3.2         # via pyopenssl
 kombu==3.0.35             # via celery
 ndg-httpsclient==0.4.2    # via pusher
-pusher==1.5
-pyasn1==0.1.9             # via cryptography, pusher
+pusher==1.5               # via -r requirements.in
+pyasn1==0.1.9             # via pusher
 pycparser==2.14           # via cffi
 pyopenssl==16.1.0         # via ndg-httpsclient, pusher
 pytz==2016.6.1            # via celery
-redis==2.10.5
+redis==2.10.5             # via -r requirements.in
 requests==2.11.1          # via pusher
 six==1.10.0               # via cryptography, pusher, pyopenssl
 urllib3==1.17             # via pusher
-
-# The following packages are commented out because they are
-# considered to be unsafe in a requirements file:
-# setuptools                # via cryptography
